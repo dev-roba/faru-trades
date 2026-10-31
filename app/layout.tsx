@@ -3,6 +3,7 @@ import "./globals.css";
 import { StoreProvider } from "@/lib/store";
 import Header from "@/components/Header";
 import DemoBar from "@/components/DemoBar";
+import Tour from "@/components/Tour";
 
 export const metadata: Metadata = {
   title: "Faru Trades | Verified business trade, escrow-secured",
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           <main>{children}</main>
           <DemoBar />
+          <Tour />
         </StoreProvider>
       </body>
     </html>

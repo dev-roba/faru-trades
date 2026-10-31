@@ -49,6 +49,19 @@ export default function Economics() {
           <p className="note">Illustrative planning estimates at KSh {RATE} per USD. Excludes management pay, tax and payment-processor fees.</p>
         </div>
       </div>
+      <section className="panel" style={{ marginTop: 36 }}>
+        <h2>Unit economics and launch costs</h2>
+        <table className="t"><tbody>
+          <tr><td>Customer acquisition cost (CAC)</td><td>~$60 (KSh 7,740)</td></tr>
+          <tr><td>Lifetime value (LTV)</td><td>~$825 (KSh 106,425)</td></tr>
+          <tr><td>LTV to CAC</td><td>~14 to 1</td></tr>
+          <tr><td>Launch marketing, first 3 months</td><td>KSh 75,000 / month</td></tr>
+          <tr><td>People cost at launch</td><td>KSh 140,000 / month</td></tr>
+          <tr><td>Indicative startup capital</td><td>~KSh 925,000</td></tr>
+          <tr><td>MVP build, web app + PWA</td><td>KSh 84,000 in 3 months</td></tr>
+        </tbody></table>
+        <p className="note">Early-stage estimates from the proposal, not guarantees. Gross margin figures count infrastructure only, not payment-processor fees.</p>
+      </section>
     </div>
   );
 }

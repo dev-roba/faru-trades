@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { businesses, categories, type Mode } from "@/lib/data";
 import { useStore } from "@/lib/store";
 import { ksh } from "@/lib/format";
+import Pulse from "@/components/Pulse";
 
 export default function Directory() {
   const { s, isVerified } = useStore();
@@ -25,6 +26,8 @@ export default function Directory() {
         <h1>Trade with businesses you have <mark>never met.</mark></h1>
         <p>Every business here is screened. Every payment sits in escrow until the work is delivered and the dispute window has closed.</p>
         <div className="stickers"><div className="sticker c"><b>2.5%</b>only, per transaction</div><div className="sticker b"><b>+4 days</b>dispute window before payout</div></div>
+        <div style={{ marginTop: 28 }}><Pulse /></div>
+        <p className="demo-note">Demo build with simulated payments. Figures above update as you trade.</p>
         <div className="search">
           <input type="search" placeholder="Search freight, printing, insurance, Mombasa..." value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the directory" />
         </div>

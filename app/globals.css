@@ -114,3 +114,10 @@ table.t{width:100%;border-collapse:collapse;font-size:15px} table.t td{padding:8
   .strip ol{grid-template-columns:1fr 1fr;gap:16px} .steps{grid-template-columns:repeat(5,minmax(60px,1fr));overflow:auto}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.sticker{transform:none!important}}
+
+.tour-start{position:fixed;right:20px;bottom:80px;z-index:40}
+.tour{position:fixed;left:20px;bottom:80px;z-index:40;width:min(420px,calc(100vw - 40px));background:var(--sun);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:16px 18px}
+.tour h2{font-size:20px;margin:4px 0 6px} .tour p{margin:0;font-weight:500;font-size:15px}
+.tour-n{font-size:12px;font-weight:700}
+.tour .btn.ghost{background:#fff}
+.demo-note{font-size:13px;font-weight:600;margin-top:14px}
