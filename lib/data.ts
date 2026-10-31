@@ -2,7 +2,7 @@ export type Mode = "B2B" | "B2C";
 export type Service = { id: string; title: string; blurb: string; price: number; days: number; mode: Mode };
 export type Business = {
   id: string; name: string; category: string; city: string; verified: boolean;
-  about: string; rating: number; jobs: number; services: Service[];
+  about: string; rating: number; jobs: number; services: Service[]; ownerName?: string; ownerEmail?: string;
 };
 
 export const RATE = 129; // KSh per USD (planning rate used in the proposal decks)

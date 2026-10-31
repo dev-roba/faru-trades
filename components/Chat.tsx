@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "@/lib/store";
-import { nameOf } from "@/lib/data";
 import { timeOf } from "@/lib/format";
 
 export default function Chat({ withId }: { withId: string }) {
-  const { s, send } = useStore();
+  const { s, send, nameOf } = useStore();
   const [text, setText] = useState("");
   const end = useRef<HTMLDivElement>(null);
   const thread = s.messages.filter((m) => (m.from === s.actingAs && m.to === withId) || (m.from === withId && m.to === s.actingAs));

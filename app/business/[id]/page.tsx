@@ -11,10 +11,10 @@ import Chat from "@/components/Chat";
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { s, isVerified, placeOrder } = useStore();
+  const { s, isVerified, placeOrder, biz } = useStore();
   const [open, setOpen] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const b = businesses.find((x) => x.id === id);
+  const b = biz.find((x) => x.id === id);
   if (!s.ready) return <div className="wrap page">Loading...</div>;
   if (!b) return <div className="wrap page"><h1>Business not found</h1><p className="sub"><Link href="/">Back to the directory</Link></p></div>;
 
@@ -25,7 +25,7 @@ export default function Profile() {
     <div className="wrap page">
       <Link href="/" className="sub">Directory</Link>
       <h1 style={{ marginTop: 10 }}>{b.name} {isVerified(b.id) ? <span className="tag ok">Verified</span> : <span className="tag wait">Verification pending</span>}</h1>
-      <p className="sub">{b.category} in {b.city}. Rated {b.rating} over {b.jobs} jobs.</p>
+      <p className="sub">{b.category} in {b.city}. {b.jobs ? `Rated ${b.rating} over ${b.jobs} jobs.` : "New on Faru Trades."}</p>
       <p style={{ maxWidth: "62ch" }}>{b.about}</p>
 
       <div className="grid2">

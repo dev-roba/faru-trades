@@ -4,15 +4,18 @@ import { businesses, CONSUMER, TIER_LIMIT, type Service, type Business } from ".
 import { DAY, type Order } from "./escrow";
 
 export type Msg = { id: string; from: string; to: string; text: string; at: number; warn?: boolean };
+export type Account = { name: string; email: string; via: "google" | "email"; businessId?: string };
 type State = {
   ready: boolean; actingAs: string; offset: number; orders: Order[]; messages: Msg[];
   verified: Record<string, boolean>; withdrawn: Record<string, number>;
+  account: Account | null; extra: Business[];
 };
 type Action =
   | { t: "load"; s: State } | { t: "act"; id: string } | { t: "advance"; days: number } | { t: "reset" }
   | { t: "order"; o: Order } | { t: "deliver"; id: string } | { t: "dispute"; id: string; reason: string }
   | { t: "rule"; id: string; ruling: "refund" | "release" } | { t: "msg"; m: Msg }
-  | { t: "verify"; id: string } | { t: "withdraw"; id: string; amount: number };
+  | { t: "verify"; id: string } | { t: "withdraw"; id: string; amount: number }
+  | { t: "signin"; a: Account } | { t: "signout" } | { t: "addbiz"; b: Business };
 
 const KEY = "faru-trades-demo-v1";
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -20,7 +23,7 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 function seed(): State {
   const n = Date.now();
   return {
-    ready: true, actingAs: "tembo", offset: 0, verified: {}, withdrawn: {},
+    ready: true, actingAs: "tembo", offset: 0, verified: {}, withdrawn: {}, account: null, extra: [],
     orders: [
       { id: "FT-1001", buyerId: "tembo", supplierId: "faru-logistics", serviceId: "fl-1", title: "Nairobi to Mombasa freight, 7-tonne truck", amount: 45000, deliveryDays: 3, mode: "B2B", createdAt: n - 2 * DAY, delivered: false },
       { id: "FT-1000", buyerId: "tembo", supplierId: "kijani-print", serviceId: "kp-1", title: "Branded packaging, 500 units", amount: 28000, deliveryDays: 5, mode: "B2B", createdAt: n - 12 * DAY, delivered: true },
@@ -37,6 +40,9 @@ function seed(): State {
 function reducer(s: State, a: Action): State {
   switch (a.t) {
     case "load": return a.s;
+    case "signin": return { ...s, account: a.a, actingAs: a.a.businessId ?? s.actingAs };
+    case "signout": return { ...s, account: null };
+    case "addbiz": return { ...s, extra: [...s.extra, a.b] };
     case "act": return { ...s, actingAs: a.id };
     case "advance": return { ...s, offset: s.offset + a.days * DAY };
     case "reset": return seed();
@@ -60,6 +66,7 @@ const REPLIES = [
 ];
 
 type Ctx = {
+  account: Account | null; biz: Business[]; nameOf: (id: string) => string; signIn: (a: Account) => void; signOut: () => void; register: (b: Business, a: Account) => void;
   s: State; now: number; actor: { id: string; name: string }; isVerified: (id: string) => boolean;
   act: (id: string) => void; advance: (d: number) => void; reset: () => void;
   placeOrder: (b: Business, svc: Service) => string | null;
@@ -70,21 +77,25 @@ const C = createContext<Ctx | null>(null);
 export const useStore = () => { const c = useContext(C); if (!c) throw new Error("StoreProvider missing"); return c; };
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [s, d] = useReducer(reducer, { ready: false, actingAs: "tembo", offset: 0, orders: [], messages: [], verified: {}, withdrawn: {} } as State);
+  const [s, d] = useReducer(reducer, { ready: false, actingAs: "tembo", offset: 0, orders: [], messages: [], verified: {}, withdrawn: {}, account: null, extra: [] } as State);
   const ref = useRef(s); ref.current = s;
 
   useEffect(() => {
-    try { const raw = localStorage.getItem(KEY); d({ t: "load", s: raw ? { ...JSON.parse(raw), ready: true } : seed() }); }
+    try { const raw = localStorage.getItem(KEY); d({ t: "load", s: raw ? { ...seed(), ...JSON.parse(raw), ready: true } : seed() }); }
     catch { d({ t: "load", s: seed() }); }
   }, []);
   useEffect(() => { if (s.ready) try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} }, [s]);
 
   const value = useMemo<Ctx>(() => {
-    const isVerified = (id: string) => id === CONSUMER.id || (s.verified[id] ?? businesses.find((b) => b.id === id)?.verified ?? false);
-    const actor = s.actingAs === CONSUMER.id ? CONSUMER : businesses.find((b) => b.id === s.actingAs) ?? businesses[0];
+    const biz = [...businesses, ...s.extra];
+    const nameOf = (id: string) => (id === CONSUMER.id ? CONSUMER.name : biz.find((b) => b.id === id)?.name ?? id);
+    const isVerified = (id: string) => id === CONSUMER.id || (s.verified[id] ?? biz.find((b) => b.id === id)?.verified ?? false);
+    const actor = s.actingAs === CONSUMER.id ? CONSUMER : biz.find((b) => b.id === s.actingAs) ?? businesses[0];
     const clock = () => Date.now() + ref.current.offset;
     return {
-      s, now: Date.now() + s.offset, actor, isVerified,
+      s, now: Date.now() + s.offset, actor, isVerified, biz, nameOf, account: s.account,
+      signIn: (a) => d({ t: "signin", a }), signOut: () => d({ t: "signout" }),
+      register: (b, a) => { d({ t: "addbiz", b }); d({ t: "signin", a: { ...a, businessId: b.id } }); },
       act: (id) => d({ t: "act", id }),
       advance: (days) => d({ t: "advance", days }),
       reset: () => d({ t: "reset" }),

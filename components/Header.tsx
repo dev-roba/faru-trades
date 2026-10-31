@@ -18,7 +18,7 @@ const links = [["/", "Directory"], ["/orders", "Orders"], ["/dashboard", "Wallet
 
 export default function Header() {
   const path = usePathname();
-  const { s, act } = useStore();
+  const { s, act, biz, account, signOut } = useStore();
   return (
     <header className="top">
       <div className="wrap">
@@ -30,10 +30,15 @@ export default function Header() {
         </nav>
         <label className="acting">Acting as
           <select value={s.actingAs} onChange={(e) => act(e.target.value)} aria-label="Acting as">
-            {businesses.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+            {biz.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             <option value={CONSUMER.id}>{CONSUMER.name} (B2C)</option>
           </select>
         </label>
+        {account ? (
+          <div className="auth-box"><span className="auth-name">{account.name}</span><button className="btn sm ghost" onClick={signOut}>Sign out</button></div>
+        ) : (
+          <div className="auth-box"><Link href="/login" className="btn sm ghost">Sign in</Link><Link href="/signup" className="btn sm">Sign up</Link></div>
+        )}
       </div>
     </header>
   );

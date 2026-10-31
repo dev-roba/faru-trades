@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { nameOf } from "@/lib/data";
 import { stageOf, feeOf, netOf } from "@/lib/escrow";
 import { ksh, dateOf } from "@/lib/format";
 import EscrowTimeline from "@/components/EscrowTimeline";
@@ -10,7 +9,7 @@ import EscrowTimeline from "@/components/EscrowTimeline";
 const badge = { held: ["wait", "Held in escrow"], hold: ["wait", "4-day hold"], released: ["ok", "Released"], disputed: ["bad", "Disputed"], refunded: ["bad", "Refunded"] } as const;
 
 export default function Orders() {
-  const { s, now, deliver, dispute, rule } = useStore();
+  const { s, now, deliver, dispute, rule, nameOf } = useStore();
   const [tab, setTab] = useState<"buying" | "selling">("buying");
   const [reasonFor, setReasonFor] = useState<string | null>(null);
   const [reason, setReason] = useState("");

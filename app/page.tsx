@@ -7,18 +7,19 @@ import { ksh } from "@/lib/format";
 import Pulse from "@/components/Pulse";
 
 export default function Directory() {
-  const { s, isVerified } = useStore();
+  const { s, isVerified, biz } = useStore();
+  const cats = Array.from(new Set(biz.map((b) => b.category)));
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode | null>(null);
 
-  const list = useMemo(() => businesses.filter((b) => {
+  const list = useMemo(() => biz.filter((b) => {
     if (b.id === s.actingAs) return false;
     if (cat && b.category !== cat) return false;
     if (mode && !b.services.some((x) => x.mode === mode)) return false;
     const hay = (b.name + b.city + b.category + b.services.map((x) => x.title).join(" ")).toLowerCase();
     return hay.includes(q.toLowerCase());
-  }), [q, cat, mode, s.actingAs]);
+  }), [q, cat, mode, s.actingAs, biz]);
 
   return (
     <>
@@ -32,7 +33,7 @@ export default function Directory() {
           <input type="search" placeholder="Search freight, printing, insurance, Mombasa..." value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the directory" />
         </div>
         <div className="chips" role="group" aria-label="Filters">
-          {categories.map((c) => <button key={c} className="chip" aria-pressed={cat === c} onClick={() => setCat(cat === c ? null : c)}>{c}</button>)}
+          {cats.map((c) => <button key={c} className="chip" aria-pressed={cat === c} onClick={() => setCat(cat === c ? null : c)}>{c}</button>)}
           <button className="chip" aria-pressed={mode === "B2B"} onClick={() => setMode(mode === "B2B" ? null : "B2B")}>Sells to businesses</button>
           <button className="chip" aria-pressed={mode === "B2C"} onClick={() => setMode(mode === "B2C" ? null : "B2C")}>Sells to consumers</button>
         </div>
@@ -45,7 +46,7 @@ export default function Directory() {
               <Link key={b.id} href={`/business/${b.id}`} className="row">
                 <div>
                   <h3>{b.name} {isVerified(b.id) ? <span className="tag ok">Verified</span> : <span className="tag wait">Verification pending</span>}</h3>
-                  <div className="meta">{b.category} in {b.city}. {b.services.length} service{b.services.length > 1 ? "s" : ""}, rated {b.rating} over {b.jobs} jobs.</div>
+                  <div className="meta">{b.category} in {b.city}. {b.services.length} service{b.services.length > 1 ? "s" : ""}{b.jobs ? `, rated ${b.rating} over ${b.jobs} jobs.` : ". New on Faru Trades."}</div>
                 </div>
                 <div className="meta">{[...new Set(b.services.map((x) => x.mode))].join(" and ")}</div>
                 <div className="meta">from <span className="from">{ksh(from)}</span></div>
