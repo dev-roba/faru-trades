@@ -38,6 +38,7 @@ export default function Orders() {
             </div>
             <div className="sub">{o.id}. {tab === "buying" ? "Supplier" : "Buyer"}: <Link href={`/business/${other}`}>{nameOf(other)}</Link>. Ordered {dateOf(o.createdAt)}. {o.mode}.</div>
             <div style={{ marginTop: 8 }}><strong>{ksh(o.amount)}</strong> <span className="sub">{tab === "selling" ? `you receive ${ksh(netOf(o))} after the ${ksh(feeOf(o.amount))} commission` : "paid into escrow"}</span></div>
+            {o.receipt && <div className="sub">M-Pesa receipt {o.receipt} from {o.phone}</div>}
             <EscrowTimeline o={o} now={now} />
             {o.dispute && <p className="sub">Dispute reason: {o.dispute.reason}</p>}
             <div className="actions">

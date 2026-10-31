@@ -28,7 +28,7 @@ export default function Dashboard() {
         <div className="stat"><span>Withdrawn so far</span><b>{ksh(w.withdrawn)}</b></div>
       </div>
       <div className="actions">
-        <button className="btn" disabled={w.available <= 0} onClick={() => withdraw(actor.id, w.available)}>Withdraw {ksh(Math.max(0, w.available))}</button>
+        <button className="btn" disabled={w.available <= 0} onClick={() => withdraw(actor.id, w.available)}>Withdraw {ksh(Math.max(0, w.available))} to M-Pesa</button>
         {w.available <= 0 && <span className="sub">Nothing unlocked yet. Funds release at delivery period + 4 days.</span>}
       </div>
 

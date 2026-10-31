@@ -6,6 +6,7 @@ export type Order = {
   id: string; buyerId: string; supplierId: string; serviceId: string; title: string;
   amount: number; deliveryDays: number; mode: "B2B" | "B2C"; createdAt: number; delivered: boolean;
   dispute?: { reason: string; ruling?: "refund" | "release" };
+  receipt?: string; phone?: string;
 };
 export type Stage = "held" | "hold" | "released" | "disputed" | "refunded";
 

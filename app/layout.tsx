@@ -8,6 +8,7 @@ import Tour from "@/components/Tour";
 export const metadata: Metadata = {
   title: "Faru Trades | Verified business trade, escrow-secured",
   description: "A verified business directory and escrow-secured marketplace. Demo build.",
+  openGraph: { title: "Faru Trades", description: "Verified businesses. Escrow-secured trade. Paid with M-Pesa.", siteName: "Faru Trades" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

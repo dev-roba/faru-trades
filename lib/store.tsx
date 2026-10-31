@@ -69,7 +69,8 @@ type Ctx = {
   account: Account | null; biz: Business[]; nameOf: (id: string) => string; signIn: (a: Account) => void; signOut: () => void; register: (b: Business, a: Account) => void;
   s: State; now: number; actor: { id: string; name: string }; isVerified: (id: string) => boolean;
   act: (id: string) => void; advance: (d: number) => void; reset: () => void;
-  placeOrder: (b: Business, svc: Service) => string | null;
+  checkOrder: (b: Business, svc: Service) => string | null;
+  placeOrder: (b: Business, svc: Service, pay?: { receipt: string; phone: string }) => string | null;
   deliver: (id: string) => void; dispute: (id: string, reason: string) => void; rule: (id: string, r: "refund" | "release") => void;
   send: (to: string, text: string) => void; verify: (id: string) => void; withdraw: (id: string, amount: number) => void;
 };
@@ -92,21 +93,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const isVerified = (id: string) => id === CONSUMER.id || (s.verified[id] ?? biz.find((b) => b.id === id)?.verified ?? false);
     const actor = s.actingAs === CONSUMER.id ? CONSUMER : biz.find((b) => b.id === s.actingAs) ?? businesses[0];
     const clock = () => Date.now() + ref.current.offset;
+    const check = (b: Business, svc: Service): string | null => {
+      const me = ref.current.actingAs;
+      if (me === b.id) return "You can't order from yourself.";
+      if (me === CONSUMER.id && svc.mode === "B2B") return "This service is for business accounts. Switch to a business to order it.";
+      if (svc.price > TIER_LIMIT && (!isVerified(me) || !isVerified(b.id)))
+        return `Orders above KSh ${TIER_LIMIT.toLocaleString("en-KE")} need both sides verified. ${!isVerified(me) ? "Verify your business in Wallet." : b.name + " is still being verified."}`;
+      return null;
+    };
     return {
+      checkOrder: check,
       s, now: Date.now() + s.offset, actor, isVerified, biz, nameOf, account: s.account,
       signIn: (a) => d({ t: "signin", a }), signOut: () => d({ t: "signout" }),
       register: (b, a) => { d({ t: "addbiz", b }); d({ t: "signin", a: { ...a, businessId: b.id } }); },
       act: (id) => d({ t: "act", id }),
       advance: (days) => d({ t: "advance", days }),
       reset: () => d({ t: "reset" }),
-      placeOrder: (b, svc) => {
+      placeOrder: (b, svc, pay) => {
+        const bad = check(b, svc);
+        if (bad) return bad;
         const me = ref.current.actingAs;
-        if (me === b.id) return "You can't order from yourself.";
-        if (me === CONSUMER.id && svc.mode === "B2B") return "This service is for business accounts. Switch to a business to order it.";
-        if (svc.price > TIER_LIMIT && (!isVerified(me) || !isVerified(b.id)))
-          return `Orders above KSh ${TIER_LIMIT.toLocaleString("en-KE")} need both sides verified. ${!isVerified(me) ? "Verify your business in Wallet." : b.name + " is still being verified."}`;
         const id = "FT-" + (1002 + ref.current.orders.length);
-        d({ t: "order", o: { id, buyerId: me, supplierId: b.id, serviceId: svc.id, title: svc.title, amount: svc.price, deliveryDays: svc.days, mode: svc.mode, createdAt: clock(), delivered: false } });
+        d({ t: "order", o: { id, buyerId: me, supplierId: b.id, serviceId: svc.id, title: svc.title, amount: svc.price, deliveryDays: svc.days, mode: svc.mode, createdAt: clock(), delivered: false, ...(pay ? { receipt: pay.receipt, phone: pay.phone } : {}) } });
         return null;
       },
       deliver: (id) => d({ t: "deliver", id }),

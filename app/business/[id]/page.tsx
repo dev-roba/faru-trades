@@ -7,18 +7,20 @@ import { useStore } from "@/lib/store";
 import { feeOf } from "@/lib/escrow";
 import { ksh } from "@/lib/format";
 import Chat from "@/components/Chat";
+import MpesaCheckout from "@/components/MpesaCheckout";
 
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { s, isVerified, placeOrder, biz } = useStore();
+  const { s, isVerified, placeOrder, checkOrder, biz } = useStore();
   const [open, setOpen] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [pay, setPay] = useState<Service | null>(null);
   const b = biz.find((x) => x.id === id);
   if (!s.ready) return <div className="wrap page">Loading...</div>;
   if (!b) return <div className="wrap page"><h1>Business not found</h1><p className="sub"><Link href="/">Back to the directory</Link></p></div>;
 
-  const buy = (svc: Service) => { const e = placeOrder(b, svc); if (e) setErr(e); else router.push("/orders"); };
+  const buy = (svc: Service) => { const e = checkOrder(b, svc); if (e) setErr(e); else { setErr(null); setPay(svc); } };
   const self = s.actingAs === b.id;
 
   return (
@@ -46,7 +48,7 @@ export default function Profile() {
                   </div>
                   {err && <p className="err" role="alert">{err}</p>}
                   <div className="actions">
-                    <button className="btn" onClick={() => buy(svc)}>Pay {ksh(svc.price)} into escrow</button>
+                    <button className="btn" onClick={() => buy(svc)}>Pay {ksh(svc.price)} with M-Pesa</button>
                     <button className="btn ghost" onClick={() => { setOpen(null); setErr(null); }}>Cancel</button>
                   </div>
                 </>
@@ -57,6 +59,7 @@ export default function Profile() {
         </div>
         {!self && <Chat withId={b.id} />}
       </div>
+      {pay && <MpesaCheckout svc={pay} biz={b} onClose={() => setPay(null)} onPaid={(p) => { placeOrder(b, pay, p); router.push("/orders"); }} />}
     </div>
   );
 }
