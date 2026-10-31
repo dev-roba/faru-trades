@@ -22,8 +22,9 @@ export default function Directory() {
   return (
     <>
       <div className="wrap hero">
-        <h1>Trade with businesses you have never met.</h1>
+        <h1>Trade with businesses you have <mark>never met.</mark></h1>
         <p>Every business here is screened. Every payment sits in escrow until the work is delivered and the dispute window has closed.</p>
+        <div className="stickers"><div className="sticker c"><b>2.5%</b>only, per transaction</div><div className="sticker b"><b>+4 days</b>dispute window before payout</div></div>
         <div className="search">
           <input type="search" placeholder="Search freight, printing, insurance, Mombasa..." value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search the directory" />
         </div>

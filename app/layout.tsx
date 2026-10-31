@@ -14,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <StoreProvider>
+          <div className="stripe" />
           <Header />
           <main>{children}</main>
           <DemoBar />
