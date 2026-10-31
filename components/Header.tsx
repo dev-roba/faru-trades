@@ -7,9 +7,9 @@ import { useStore } from "@/lib/store";
 export function Mark({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect x="1.5" y="1.5" width="29" height="29" fill="#FFC72C" stroke="#111" strokeWidth="3" />
-      <path d="M2 30L16 2l14 28z" fill="#E8452C" stroke="#111" strokeWidth="2" />
-      <circle cx="16" cy="21" r="4" fill="#1F3FBF" stroke="#111" strokeWidth="2" />
+      <rect width="32" height="32" rx="7" fill="#0E6B47" />
+      <path d="M4 4h6v8H4zM16 4h6v8h-6z" fill="#fff" />
+      <path d="M10 16h12v3h-8v2h6v3h-6v5h-4z" fill="#fff" />
     </svg>
   );
 }
@@ -22,7 +22,7 @@ export default function Header() {
   return (
     <header className="top">
       <div className="wrap">
-        <Link href="/" className="brand"><Mark />FARU TRADES <small>bizz.it</small></Link>
+        <Link href="/" className="brand"><Mark />Faru Trades <small>bizz.it</small></Link>
         <nav className="main" aria-label="Main">
           {links.map(([href, label]) => (
             <Link key={href} href={href} aria-current={path === href ? "page" : undefined}>{label}</Link>
